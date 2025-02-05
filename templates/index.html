@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header>
+        <h1>Attendance Management Dashboard</h1>
+    </header>
+
+    <!-- Flash messages -->
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <ul class="flashes">
+          {% for message in messages %}
+            <li>{{ message }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+
+    <section class="mark-attendance">
+        <form method="POST" action="/mark_in">
+            <h2>Mark Attendance (Time In)</h2>
+            <label for="employee_id">Employee ID:</label>
+            <input type="text" name="employee_id" placeholder="Enter Employee ID" required>
+            <br>
+            <label for="employee_name">Employee Name:</label>
+            <input type="text" name="employee_name" placeholder="Enter Employee Name" required>
+            <br>
+            <button type="submit">Mark Time In</button>
+        </form>
+    </section>
+
+    <section class="attendance-summary">
+        <h2>Attendance Summary</h2>
+        <p><strong>Total Employees: </strong>{{ total_employees }}</p>
+        <p><strong>Employees Present Today: </strong>{{ present_employees }}</p>
+        <p><strong>Total Attendance Percentage for Today: </strong>{{ total_percentage }}%</p>
+    </section>
+
+    <section class="attendance-records">
+        <h2>Attendance Records</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Employee ID</th>
+                    <th>Employee Name</th>
+                    <th>Date</th>
+                    <th>Time In</th>
+                    <th>Time Out</th>
+                    <th>Action</th>
+                    <th>Attendance %</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for record in records %}
+                <tr>
+                    <td>{{ record[1] }}</td>
+                    <td>{{ record[2] }}</td>
+                    <td>{{ record[3] }}</td>
+                    <td>{{ record[4] }}</td>
+                    <td>{{ record[5] }}</td>
+                    <td>
+                        {% if record[5] == 'None' %}
+                            <a class="action-button" href="{{ url_for('mark_out', record_id=record[0]) }}">Mark Time Out</a>
+                        {% else %}
+                            <a class="action-button logout" href="{{ url_for('logout', record_id=record[0]) }}">Logout</a>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if record[5] != 'None' %}
+                            {{ attendance_percentages[record[1]] }}%
+                        {% else %}
+                            N/A
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
+</body>
+</html>
